@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %} Stream {% endblock %}
+{% block body %}
+
+<div style="width:100vw;height:calc(100vh - 8vh);display:grid; justify-content: center; margin-top: 10vh;grid-auto-rows: min-content; ">
+    <style type="text/css">
+        h2{
+            font-family: 'Times New Roman', serif Bold;
+            font-size: 2.0vw;
+            color:rgb(254, 250, 250);
+        }
+        h3{
+            font-family: Avenir Next Bold;
+            font-size: 1.7vw;
+            color:rgb(254, 250, 250);
+        }
+        h4 {
+            font-family: 'Times New Roman', serif Bold;
+            font-size: 2.0vw;
+            color:rgb(254, 250, 250);}
+
+        h6 {
+            font-family: 'Times New Roman', serif Bold;
+            font-size: 2.0vw;
+            color:rgb(254, 250, 250);}
+        h7{
+            font-family:H'Times New Roman', serif Bold;
+            font-size: 2.0vw;
+            color:rgb(254, 250, 250);
+            }
+
+    </style>
+    <div style="display: grid;grid-template-columns: 100%;grid-template-rows: calc(100vh - 75.35px);justify-items: center;align-items: center;">
+        <img src="{{ url_for('views.video_feed') }}" alt="test" style="width:50%"/>
+    </div>
+
+</div>
+
+<script >
+</script>
+
+{% endblock %}
