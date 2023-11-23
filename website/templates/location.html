@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %} Visual Navigation {% endblock %}
+{% block body %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Visual Navigation</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap"></script>
+</head>
+<body>
+  <div id="map" style="width: 100%; height: 400px;"></div>
+  <p style="color:white">Last Detected Location: <span id="lastLocation">No data yet</span></p>
+  <p style="color:white">Last Detected Time: <span id="lastTime">No data yet</span></p>
+ <button type="button" onclick="window.location.href='{{ url_for( 'views.getLocation' ) }}'">Get Location</button>
+
+  <script>
+    // Initialize the map
+    function initMap() {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 0, lng: 0 }, // Initial center point
+        zoom: 14, // Adjust the zoom level as needed
+      });
+
+      // Function to update map location and information
+      function updateMapLocation(latitude, longitude, lastTime) {
+        var location = new google.maps.LatLng(latitude, longitude);
+        map.setCenter(location);
+
+        // Update the last detected location and time on the webpage
+        document.getElementById('lastLocation').textContent = location.toString();
+        document.getElementById('lastTime').textContent = lastTime;
+      }
+
+      // Replace these values with real data from your phone's GPS
+      var phoneLatitude = '{{latitude}}'; // Replace with actual latitude
+      var phoneLongitude = '{{longitude}}'; // Replace with actual longitude
+      var lastDetectedTime = '2023-11-05 12:00:00'; // Replace with actual time
+
+      updateMapLocation(phoneLatitude, phoneLongitude, lastDetectedTime);
+    }
+  </script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap"></script>
+</body>
+</html>
+
+
+{% endblock %}

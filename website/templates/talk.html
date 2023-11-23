@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %} Stream {% endblock %}
+{% block body %}
+
+<style>
+    h2 {color: whitesmoke;}
+    p {color: white;}
+    .center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+    .button-container {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+    button {margin: 10px;}
+</style>
+<div style="width:100%; display:grid;justify-items:center">
+    <div style="width:50%;padding-top:10px">
+        <h2 style="text-align:center">Welcome to Walkie Talkie!</h2>
+        <p style="text-align:center">Connect with your loved ones through live audio conversations using your device's microphone. This platform is designed for easy and accessible communication, allowing individuals, including those with visual impairments, to engage in real-time talks.</p>
+
+        <!-- Container for buttons -->
+        <div class="button-container">
+            <button type="button" onclick="window.location.href='{{ url_for( 'views.startTalking' ) }}'"  id="talkButton">Talk</button>
+            <button type="button" onclick="window.location.href='{{ url_for( 'views.stopTalking' ) }}'" id="stopButton">Stop</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
