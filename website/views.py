@@ -26,8 +26,8 @@ views = Blueprint("views", __name__)
 img_byte_arr = None
 
 # put the current ip address of client in the network
-android_client_address = "192.168.43.1"
-# android_client_address = "192.168.0.161"
+# android_client_address = "192.168.43.1"
+android_client_address = "192.168.0.161"
 location_url = "http://" + android_client_address + ":10000"
 
 server_socket_feature_enable = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -54,23 +54,6 @@ videoStatus = False
 frameImg = None
 
 
-def genHeader(sampleRate, bitsPerSample, channels):
-    dataset = 1000 * 10 ** 6
-    o = bytes("RIFF", 'ascii')  # (4byte) Marks file as RIFF
-    o += (dataset + 36).to_bytes(4, 'little')  # (4byte) File size in bytes excluding this and RIFF marker
-    o += bytes("WAVE", 'ascii')  # (4byte) File type
-    o += bytes("fmt ", 'ascii')  # (4byte) Format Chunk Marker
-    o += (16).to_bytes(4, 'little')  # (4byte) Length of above format data
-    o += (1).to_bytes(2, 'little')  # (2byte) Format type (1 - PCM)
-    o += channels.to_bytes(2, 'little')  # (2byte)
-    o += sampleRate.to_bytes(4, 'little')  # (4byte)
-    o += (sampleRate * channels * bitsPerSample // 8).to_bytes(4, 'little')  # (4byte)
-    o += (channels * bitsPerSample // 8).to_bytes(2, 'little')  # (2byte)
-    o += bitsPerSample.to_bytes(2, 'little')  # (2byte)
-    o += bytes("data", 'ascii')  # (4byte) Data Chunk Marker
-    o += dataset.to_bytes(4, 'little')  # (4byte) Data size in bytes
-    print(o)
-    return o
 
 
 @views.route('/')
@@ -132,29 +115,12 @@ def receiveAudio(server_socket1):
 
 def sendAudio(server_socket1):
     streamIn = p.open(format=sample_format, channels=channels,
-                      rate=fs, frames_per_buffer=chunk,input=True,
+                      rate=fs, frames_per_buffer=chunk, input=True,
                       input_device_index=2)
     while audioStream:
         address = (android_client_address, 50005)
         send_bytes = streamIn.read(chunk)
         server_socket1.sendto(send_bytes, address)
-
-
-@views.route('/audio')
-def audio():
-    def sound():
-        wav_header = genHeader(fs, 16, channels)
-        yield wav_header
-        prevAudioReceived = audioReceived
-
-        while True:
-            if audioReceived != prevAudioReceived:
-                yield audioReceived
-                # print(audioReceived)
-                prevAudioReceived = audioReceived
-
-    return Response(sound(), mimetype='audio/x-wav')
-
 
 @views.route('/location')
 def location():
@@ -163,11 +129,15 @@ def location():
 
 @views.route('/getLocation')
 def getLocation():
+    print("getting location")
     data = ["null", "null"]
     try:
         for index, line in enumerate(urllib.request.urlopen(location_url)):
+            if index == 2:
+                break
             data[index] = line.decode('utf-8')
             print(line.decode('utf-8'))
+
     except:
         print("error")
     global latitude, longitude
@@ -195,7 +165,7 @@ def enableVideoStream():
     videoStatus = True
 
     # start ai detection algorithm
-    aiThread = Thread(target=faceDetect, args=())
+    aiThread = Thread(target=obstacleDetect, args=())
     aiThread.daemon = True
     aiThread.start()
 
@@ -225,7 +195,7 @@ def gen():
                b'Content-Type: image/jpeg\r\n\r\n' + message + b'\r\n')
 
 
-def faceDetect():
+def obstacleDetect():
     cv2.namedWindow("image", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
     ai = True
     startTime = time.time()
@@ -242,39 +212,9 @@ def faceDetect():
                     ai = False
                     startTime = time.time()
 
-            elapsedTime = time.time()-startTime
+            elapsedTime = time.time() - startTime
             if elapsedTime >= 5:
                 ai = True
-
-
-
-            # img = resu
-            # lts.imgs[0]
-            # shape = img.shape
-            # centerPoint = [shape[1] / 2, shape[0] / 2]
-            # color = (255, 0, 0)
-            # prevRes = ''
-            # res = ''
-            # for objects in pred[:, :]:
-            #     box = [int(x) for x in objects]
-            #     c1, c2 = box[0:2], box[2:4]
-            #     if c1[0] < centerPoint[0] < c2[0] and c1[1] < centerPoint[1] < c2[1]:
-            #         res = results.names[int(objects[-1])]
-            #         print(res)
-            #         cv2.rectangle(img, c1, c2, color, 1)
-            #
-            # img = cv2.cvtColor(results.imgs[0], cv2.COLOR_RGB2BGR)
-            # cv2.imshow('image', img)
-            # cv2.waitKey(1)
-            #
-            # if res == '':
-            #     res = 'path clear'
-            # else:
-            #     res += ' detected'
-            #
-            # alert = ("alert_" + res + ".").encode('utf-8')
-            # server_socket_feature_enable.sendto(alert, client_feature_enable_address)
-            # time.sleep(2)
 
             img = np.array(frameImg)
             kernel_size = 5
@@ -303,6 +243,7 @@ def faceDetect():
                 cv2.line(img_black, x1y1, x2y2, red)
 
             res = cv2.bitwise_or(res, img_black)
+
             cv2.imshow('image', res)
             cv2.waitKey(1)
 
