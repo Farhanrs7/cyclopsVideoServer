@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 {% block title %} Visual Navigation {% endblock %}
 {% block body %}
-<!DOCTYPE html>
 <html>
 <head>
   <title>Visual Navigation</title>
-  <script src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap"></script>
 </head>
 <body>
   <div id="map" style="width: 100%; height: 400px;"></div>
@@ -18,13 +16,20 @@
     function initMap() {
       var map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 0, lng: 0 }, // Initial center point
-        zoom: 14, // Adjust the zoom level as needed
+        zoom: 18, // Adjust the zoom level as needed
       });
+
+      var marker = new google.maps.Marker({
+        position: { lat:0 ,lng :0},
+        map: map,
+        label: ""
+       });
 
       // Function to update map location and information
       function updateMapLocation(latitude, longitude, lastTime) {
         var location = new google.maps.LatLng(latitude, longitude);
         map.setCenter(location);
+        marker.setPosition(location);
 
         // Update the last detected location and time on the webpage
         document.getElementById('lastLocation').textContent = location.toString();
@@ -40,7 +45,7 @@
     }
   </script>
 
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=initMap"></script>
 </body>
 </html>
 
